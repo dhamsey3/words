@@ -1,0 +1,16 @@
+
+<h2>My Library</h2>
+<% if (items.length === 0) { %><p>You haven't bought any books yet.</p><% } %>
+<ul class="list">
+  <% items.forEach(i => { %>
+    <li class="list-item">
+      <div class="flex">
+        <% if (i.cover_path) { %><img class="thumb" src="/covers/<%= i.cover_path %>" alt=""><% } %>
+        <div>
+          <strong><%= i.title %></strong><br/>
+          <a class="btn small" href="/download/<%= i.book_id %>">Download</a>
+        </div>
+      </div>
+    </li>
+  <% }) %>
+</ul>

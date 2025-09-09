@@ -1,0 +1,11 @@
+
+<h2>Publish a new book</h2>
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+<form method="post" enctype="multipart/form-data">
+  <label>Title <input name="title" required></label>
+  <label>Description <textarea name="description"></textarea></label>
+  <label>Price (NGN kobo) <input name="price_ngn" type="number" value="10000" required></label>
+  <label>PDF file <input name="pdf" type="file" accept="application/pdf" required></label>
+  <label>Cover image <input name="cover" type="file" accept="image/*"></label>
+  <button>Publish</button>
+</form>

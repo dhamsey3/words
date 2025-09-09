@@ -1,0 +1,19 @@
+
+<article class="detail">
+  <% if (book.cover_path) { %><img class="cover-lg" src="/covers/<%= book.cover_path %>" alt=""><% } %>
+  <div>
+    <h1><%= book.title %></h1>
+    <p class="muted">by <%= book.author_name || 'Unknown' %></p>
+    <p><%= book.description || '' %></p>
+    <p class="price">₦<%= (book.price_ngn/100).toFixed(2) %></p>
+    <% if (!currentUser) { %>
+      <a class="btn" href="/login?next=/books/<%= book.id %>">Log in to buy</a>
+    <% } else if (owns) { %>
+      <a class="btn" href="/library">Go to your library</a>
+    <% } else { %>
+      <form method="post" action="/buy/<%= book.id %>">
+        <button class="btn">Buy now (Demo)</button>
+      </form>
+    <% } %>
+  </div>
+</article>

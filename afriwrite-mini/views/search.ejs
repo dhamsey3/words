@@ -1,0 +1,19 @@
+
+<h2>Search</h2>
+<form method="get">
+  <input name="q" placeholder="Title or description" value="<%= q %>" />
+  <button>Search</button>
+</form>
+<% if (books && books.length) { %>
+<div class="grid">
+  <% books.forEach(b => { %>
+    <a class="card" href="/books/<%= b.id %>">
+      <% if (b.cover_path) { %><img class="cover" src="/covers/<%= b.cover_path %>" alt=""><% } %>
+      <div class="card-body">
+        <h3><%= b.title %></h3>
+        <p class="muted">₦<%= (b.price_ngn/100).toFixed(2) %></p>
+      </div>
+    </a>
+  <% }) %>
+</div>
+<% } %>

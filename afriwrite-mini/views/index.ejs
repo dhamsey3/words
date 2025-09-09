@@ -1,0 +1,16 @@
+
+<% if (books.length === 0) { %>
+  <p>No books yet. Writers can <a href="/register">register</a> as WRITER and publish.</p>
+<% } %>
+<div class="grid">
+  <% books.forEach(b => { %>
+    <a class="card" href="/books/<%= b.id %>">
+      <% if (b.cover_path) { %><img class="cover" src="/covers/<%= b.cover_path %>" alt=""><% } %>
+      <div class="card-body">
+        <h3><%= b.title %></h3>
+        <p class="muted">by <%= b.author_name || 'Unknown' %></p>
+        <p>₦<%= (b.price_ngn/100).toFixed(2) %></p>
+      </div>
+    </a>
+  <% }) %>
+</div>
