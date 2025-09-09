@@ -10,7 +10,8 @@
 <body>
   <header class="nav">
     <a class="brand" href="/">AfriWrite Mini</a>
-    <nav>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+    <nav class="nav-menu">
       <a href="/search">Search</a>
       <% if (currentUser) { %>
         <a href="/library">My Library</a>
@@ -29,5 +30,16 @@
     <%- body %>
   </main>
   <footer class="footer">Built for Nigerian & African writers · Demo MVP</footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var btn = document.querySelector('.menu-toggle');
+      var menu = document.querySelector('.nav-menu');
+      if (btn && menu) {
+        btn.addEventListener('click', function () {
+          menu.classList.toggle('open');
+        });
+      }
+    });
+  </script>
 </body>
 </html>
