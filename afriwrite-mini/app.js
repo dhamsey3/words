@@ -16,6 +16,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET) {
+  throw new Error("SESSION_SECRET environment variable is required");
+}
+
 // --- Folders ---
 const UPLOAD_DIR = path.join(__dirname, "uploads");
 const PUBLIC_DIR = path.join(__dirname, "public");
@@ -67,7 +72,7 @@ app.use("/covers", express.static(UPLOAD_DIR));
 app.use("/files", express.static(UPLOAD_DIR));
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || "dev-secret-change-me",
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // set true if behind HTTPS proxy

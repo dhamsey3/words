@@ -9,9 +9,12 @@ Minimal Node.js + Express + SQLite app to publish and sell ebooks (demo).
 ```bash
 cd afriwrite-mini
 npm install
+export SESSION_SECRET="your-secret-value" # required
 npm start
 # open http://localhost:3000
 ```
+
+`SESSION_SECRET` is used to sign session cookies and must be set before starting the server.
 
 ## Demo flow
 1. Register as **Writer**, publish a book (PDF required).
