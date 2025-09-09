@@ -15,6 +15,7 @@ npm start
 ```
 
 `SESSION_SECRET` is used to sign session cookies and must be set before starting the server.
+The app relies on the `csurf` package for CSRF protection; running `npm install` will install it as a required dependency.
 
 ## Demo flow
 1. Register as **Writer**, publish a book (PDF required).

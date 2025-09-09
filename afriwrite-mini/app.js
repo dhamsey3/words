@@ -9,16 +9,7 @@ import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-
-let csurf;
-try {
-  ({ default: csurf } = await import("csurf"));
-} catch {
-  csurf = () => (req, res, next) => {
-    req.csrfToken = () => "test-token";
-    next();
-  };
-}
+import csurf from "csurf";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -185,13 +176,13 @@ app.post("/register", async (req, res) => {
 });
 
 // Login
-app.get("/login", (req, res) => res.render("login", { error: null }));
+app.get("/login", (req, res) => res.render("login", { error: null, success: null }));
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = db.prepare("SELECT * FROM users WHERE email=?").get(email.toLowerCase());
-  if (!user) return res.render("login", { error: "Invalid credentials" });
+  if (!user) return res.render("login", { error: "Invalid credentials", success: null });
   const ok = await bcrypt.compare(password, user.password_hash);
-  if (!ok) return res.render("login", { error: "Invalid credentials" });
+  if (!ok) return res.render("login", { error: "Invalid credentials", success: null });
   req.session.user = { id: user.id, email: user.email, name: user.name, role: user.role };
   const nextRaw = req.query.next;
   const next = (typeof nextRaw === "string" && nextRaw.startsWith("/") && !nextRaw.includes("//")) ? nextRaw : "/";

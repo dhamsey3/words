@@ -31,13 +31,19 @@ async function attemptLogin(next) {
   const server = app.listen();
   const port = server.address().port;
   const base = `http://127.0.0.1:${port}`;
+  const loginPage = await fetch(`${base}/login`);
+  const cookie = loginPage.headers.get('set-cookie')?.split(';')[0] || '';
+  const html = await loginPage.text();
+  const match = html.match(/name="_csrf" value="([^"]+)"/);
+  const token = match ? match[1] : '';
 
   const res = await fetch(`${base}/login?next=${encodeURIComponent(next)}`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Cookie: cookie
     },
-    body: new URLSearchParams({ email, password }),
+    body: new URLSearchParams({ email, password, _csrf: token }),
     redirect: 'manual'
   });
 
