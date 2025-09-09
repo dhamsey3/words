@@ -251,7 +251,7 @@ app.post("/buy/:id", requireAuth, async (req, res) => {
   const buyerEmail = req.session.user.email;
   const wmOutPath = path.join(PURCHASE_DIR, `${req.session.user.id}_${book.id}.pdf`);
   try {
-    const pdfBytes = fs.readFileSync(path.join(UPLOAD_DIR, book.pdf_path));
+    const pdfBytes = await fs.promises.readFile(path.join(UPLOAD_DIR, book.pdf_path));
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const pages = pdfDoc.getPages();
@@ -264,9 +264,10 @@ app.post("/buy/:id", requireAuth, async (req, res) => {
       });
     });
     const stamped = await pdfDoc.save();
-    fs.writeFileSync(wmOutPath, stamped);
+    await fs.promises.writeFile(wmOutPath, stamped);
   } catch (e) {
     console.error("Watermark error", e);
+    return res.status(500).send("Failed to prepare purchase");
   }
 
   res.redirect("/library");
