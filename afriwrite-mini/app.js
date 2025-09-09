@@ -102,7 +102,30 @@ const storage = multer.diskStorage({
     cb(null, uuidv4() + ext);
   }
 });
-const upload = multer({ storage });
+
+const MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_COVER_SIZE = 2 * 1024 * 1024; // 2MB
+
+const upload = multer({
+  storage,
+  limits: { fileSize: MAX_PDF_SIZE },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (file.fieldname === "pdf") {
+      if (file.mimetype !== "application/pdf" || ext !== ".pdf") {
+        return cb(new Error("Invalid PDF file"));
+      }
+    } else if (file.fieldname === "cover") {
+      const allowed = [".png", ".jpg", ".jpeg"];
+      if (!file.mimetype.startsWith("image/") || !allowed.includes(ext)) {
+        return cb(new Error("Invalid cover image"));
+      }
+    }
+    cb(null, true);
+  }
+});
+
+const bookUpload = upload.fields([{ name: "pdf", maxCount: 1 }, { name: "cover", maxCount: 1 }]);
 
 // --- Helpers ---
 function requireAuth(req, res, next) {
@@ -174,13 +197,23 @@ app.get("/writer/books/new", requireRole("WRITER"), (req, res) => {
 });
 
 app.post("/writer/books/new", requireRole("WRITER"),
-  upload.fields([{ name: "pdf", maxCount: 1 }, { name: "cover", maxCount: 1 }]),
+  (req, res, next) => {
+    bookUpload(req, res, err => {
+      if (err) return res.render("new_book", { error: err.message });
+      next();
+    });
+  },
   csrfProtection,
   (req, res) => {
     const { title, description, price_ngn } = req.body;
     const pdf = req.files["pdf"]?.[0];
     const cover = req.files["cover"]?.[0];
     if (!pdf) return res.render("new_book", { error: "PDF is required" });
+    if (cover && cover.size > MAX_COVER_SIZE) {
+      fs.unlink(path.join(UPLOAD_DIR, cover.filename), () => {});
+      fs.unlink(path.join(UPLOAD_DIR, pdf.filename), () => {});
+      return res.render("new_book", { error: "Cover image too large" });
+    }
     const id = uuidv4();
     db.prepare(`INSERT INTO books (id, author_id, title, description, price_ngn, pdf_path, cover_path, created_at)
                 VALUES (?,?,?,?,?,?,?,datetime('now'))`)
