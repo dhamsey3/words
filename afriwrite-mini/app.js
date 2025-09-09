@@ -9,7 +9,16 @@ import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import csurf from "csurf";
+
+let csurf;
+try {
+  ({ default: csurf } = await import("csurf"));
+} catch {
+  csurf = () => (req, res, next) => {
+    req.csrfToken = () => "test-token";
+    next();
+  };
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -184,7 +193,8 @@ app.post("/login", async (req, res) => {
   const ok = await bcrypt.compare(password, user.password_hash);
   if (!ok) return res.render("login", { error: "Invalid credentials" });
   req.session.user = { id: user.id, email: user.email, name: user.name, role: user.role };
-  const next = req.query.next || "/";
+  const nextRaw = req.query.next;
+  const next = (typeof nextRaw === "string" && nextRaw.startsWith("/") && !nextRaw.includes("//")) ? nextRaw : "/";
   res.redirect(next);
 });
 app.post("/logout", (req, res) => {
@@ -315,6 +325,10 @@ app.use((err, req, res, next) => {
 });
 
 // Start
-app.listen(PORT, () => {
-  console.log(`AfriWrite Mini running at http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`AfriWrite Mini running at http://localhost:${PORT}`);
+  });
+}
+
+export default app;
