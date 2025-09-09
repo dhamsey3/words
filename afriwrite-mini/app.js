@@ -281,12 +281,23 @@ app.get("/library", requireAuth, (req, res) => {
 });
 
 // Download purchased
-app.get("/download/:bookId", requireAuth, (req, res) => {
-  const own = db.prepare("SELECT 1 FROM orders WHERE buyer_id=? AND book_id=? AND status='PAID'")
+app.get("/download/:bookId", requireAuth, async (req, res) => {
+  const own = db
+    .prepare("SELECT 1 FROM orders WHERE buyer_id=? AND book_id=? AND status='PAID'")
     .get(req.session.user.id, req.params.bookId);
   if (!own) return res.status(403).send("You do not own this book");
-  const wmOutPath = path.join(PURCHASE_DIR, `${req.session.user.id}_${req.params.bookId}.pdf`);
-  if (!fs.existsSync(wmOutPath)) return res.status(404).send("Your copy is not ready");
+  const wmOutPath = path.join(
+    PURCHASE_DIR,
+    `${req.session.user.id}_${req.params.bookId}.pdf`
+  );
+  try {
+    await fs.promises.access(wmOutPath);
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      return res.status(404).send("Your copy is not ready");
+    }
+    return res.status(500).send("Error accessing file");
+  }
   res.download(wmOutPath, "your-book.pdf");
 });
 
