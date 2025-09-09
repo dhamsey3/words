@@ -159,19 +159,44 @@ app.get("/", (req, res) => {
 });
 
 // Register
-app.get("/register", (req, res) => res.render("register", { error: null }));
+app.get("/register", (req, res) =>
+  res.render("register", { error: null, success: null })
+);
 app.post("/register", async (req, res) => {
   const { name, email, password, role } = req.body;
-  if (!email || !password) return res.render("register", { error: "Email and password are required" });
+  if (!email || !password)
+    return res.render("register", {
+      error: "Email and password are required",
+      success: null,
+    });
   try {
     const id = uuidv4();
     const hash = await bcrypt.hash(password, 10);
-    db.prepare("INSERT INTO users (id,email,password_hash,name,role,created_at) VALUES (?,?,?,?,?,datetime('now'))")
-      .run(id, email.toLowerCase(), hash, name || "", (role === "WRITER" ? "WRITER" : "READER"));
-    req.session.user = { id, email: email.toLowerCase(), name, role: (role === "WRITER" ? "WRITER" : "READER") };
+    db.prepare(
+      "INSERT INTO users (id,email,password_hash,name,role,created_at) VALUES (?,?,?,?,?,datetime('now'))"
+    ).run(
+      id,
+      email.toLowerCase(),
+      hash,
+      name || "",
+      role === "WRITER" ? "WRITER" : "READER"
+    );
+    req.session.user = {
+      id,
+      email: email.toLowerCase(),
+      name,
+      role: role === "WRITER" ? "WRITER" : "READER",
+    };
     res.redirect("/");
   } catch (e) {
-    res.render("register", { error: "Could not register: " + (e.code === "SQLITE_CONSTRAINT_UNIQUE" ? "Email already used" : e.message) });
+    res.render("register", {
+      error:
+        "Could not register: " +
+        (e.code === "SQLITE_CONSTRAINT_UNIQUE"
+          ? "Email already used"
+          : e.message),
+      success: null,
+    });
   }
 });
 
