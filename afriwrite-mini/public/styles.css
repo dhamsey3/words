@@ -20,3 +20,6 @@ h1,h2,h3{margin-top:0}
 .thumb{width:64px;height:64px;object-fit:cover;border-radius:8px;margin-right:12px}
 .flex{display:flex;align-items:center;gap:12px}
 .error{color:#ef4444}
+.nav-menu{display:flex;gap:12px}
+.menu-toggle{display:none;background:none;border:none;color:var(--fg);font-size:24px;cursor:pointer}
+@media(max-width:600px){.nav{flex-wrap:wrap}.nav-menu{flex-direction:column;width:100%;max-height:0;overflow:hidden;transition:max-height .3s ease}.nav-menu.open{max-height:500px}.menu-toggle{display:block}}
