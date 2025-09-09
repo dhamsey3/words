@@ -15,7 +15,10 @@
       <% if (currentUser) { %>
         <a href="/library">My Library</a>
         <% if (currentUser.role === 'WRITER') { %><a href="/writer/books/new">Publish</a><% } %>
-        <form action="/logout" method="post" style="display:inline"><button class="link-btn">Logout</button></form>
+        <form action="/logout" method="post" style="display:inline">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="link-btn">Logout</button>
+        </form>
       <% } else { %>
         <a href="/login">Login</a>
         <a href="/register">Register</a>
