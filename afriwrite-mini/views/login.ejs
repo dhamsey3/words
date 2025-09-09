@@ -2,6 +2,7 @@
 <h2>Log in</h2>
 <% if (error) { %><p class="error"><%= error %></p><% } %>
 <form method="post">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <label>Email <input name="email" type="email" required></label>
   <label>Password <input name="password" type="password" required></label>
   <button>Log in</button>

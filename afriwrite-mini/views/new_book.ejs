@@ -2,6 +2,7 @@
 <h2>Publish a new book</h2>
 <% if (error) { %><p class="error"><%= error %></p><% } %>
 <form method="post" enctype="multipart/form-data">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <label>Title <input name="title" required></label>
   <label>Description <textarea name="description"></textarea></label>
   <label>Price (NGN kobo) <input name="price_ngn" type="number" value="10000" required></label>

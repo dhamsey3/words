@@ -9,6 +9,7 @@ import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import csurf from "csurf";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,6 +74,19 @@ app.use(session({
   cookie: { secure: false } // set true if behind HTTPS proxy
 }));
 
+const csrfProtection = csurf();
+
+app.use((req, res, next) => {
+  if (
+    req.method === "POST" &&
+    req.headers["content-type"] &&
+    req.headers["content-type"].startsWith("multipart/form-data")
+  ) {
+    return next();
+  }
+  csrfProtection(req, res, next);
+});
+
 // --- Multer storage ---
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -98,9 +112,10 @@ function requireRole(role) {
   }
 }
 
-// Inject user into locals
+// Inject user and CSRF token into locals
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
+  res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
   next();
 });
 
@@ -155,6 +170,7 @@ app.get("/writer/books/new", requireRole("WRITER"), (req, res) => {
 
 app.post("/writer/books/new", requireRole("WRITER"),
   upload.fields([{ name: "pdf", maxCount: 1 }, { name: "cover", maxCount: 1 }]),
+  csrfProtection,
   (req, res) => {
     const { title, description, price_ngn } = req.body;
     const pdf = req.files["pdf"]?.[0];
@@ -244,12 +260,19 @@ app.get("/search", (req, res) => {
   const q = (req.query.q || "").trim();
   let rows = [];
   if (q) {
-    rows = db.prepare(`SELECT b.*, u.name as author_name 
-                       FROM books b JOIN users u ON u.id=b.author_id 
+    rows = db.prepare(`SELECT b.*, u.name as author_name
+                       FROM books b JOIN users u ON u.id=b.author_id
                        WHERE b.title LIKE ? OR b.description LIKE ?
                        ORDER BY datetime(b.created_at) DESC`).all(`%${q}%`, `%${q}%`);
   }
   res.render("search", { q, books: rows });
+});
+
+app.use((err, req, res, next) => {
+  if (err.code === "EBADCSRFTOKEN") {
+    return res.status(403).send("Invalid CSRF token");
+  }
+  next(err);
 });
 
 // Start
