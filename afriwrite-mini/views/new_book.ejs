@@ -1,12 +1,13 @@
 
 <h2>Publish a new book</h2>
-<% if (error) { %><p class="error"><%= error %></p><% } %>
+<% if (error) { %><p class="form-error"><%= error %></p><% } %>
+<% if (success) { %><p class="form-success"><%= success %></p><% } %>
 <form method="post" enctype="multipart/form-data">
   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-  <label>Title <input name="title" required></label>
-  <label>Description <textarea name="description"></textarea></label>
-  <label>Price (NGN kobo) <input name="price_ngn" type="number" value="10000" required></label>
-  <label>PDF file <input name="pdf" type="file" accept="application/pdf" required></label>
-  <label>Cover image <input name="cover" type="file" accept="image/*"></label>
-  <button>Publish</button>
+  <div class="form-group"><label>Title <input name="title" required></label></div>
+  <div class="form-group"><label>Description <textarea name="description"></textarea></label></div>
+  <div class="form-group"><label>Price (NGN kobo) <input name="price_ngn" type="number" value="10000" required></label></div>
+  <div class="form-group"><label>PDF file <input name="pdf" type="file" accept="application/pdf" required></label></div>
+  <div class="form-group"><label>Cover image <input name="cover" type="file" accept="image/*"></label></div>
+  <div class="form-actions"><button>Publish</button></div>
 </form>
