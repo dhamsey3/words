@@ -1,10 +1,11 @@
 
 <h2>Log in</h2>
-<% if (error) { %><p class="error"><%= error %></p><% } %>
+<% if (error) { %><p class="form-error"><%= error %></p><% } %>
+<% if (success) { %><p class="form-success"><%= success %></p><% } %>
 <form method="post">
   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-  <label>Email <input name="email" type="email" required></label>
-  <label>Password <input name="password" type="password" required></label>
-  <button>Log in</button>
+  <div class="form-group"><label>Email <input name="email" type="email" required></label></div>
+  <div class="form-group"><label>Password <input name="password" type="password" required></label></div>
+  <div class="form-actions"><button>Log in</button></div>
 </form>
 <p>No account? <a href="/register">Register</a></p>
